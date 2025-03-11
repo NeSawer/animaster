@@ -81,7 +81,7 @@ function addListeners() {
                 heartBeatingController.stop();
             });
         });
-
+    
     document.getElementById('complexBlock')
         .addEventListener('click', animaster()
             .addFadeIn(100)
