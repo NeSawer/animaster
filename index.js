@@ -1,39 +1,59 @@
 addListeners();
 
 function addListeners() {
+    let fadeIn;
     document.getElementById('fadeInPlay')
         .addEventListener('click', function () {
             const block = document.getElementById('fadeInBlock');
-            const action = animaster()
-                .addFadeIn(100)
-                .addMove(200, {x: 40, y: 40})
-                .addScale(800, 1.3)
-                .addMove(200, {x: 80, y: 0})
-                .addScale(800, 1)
-                .addMove(200, {x: 40, y: -40})
-                .addScale(800, 0.7)
-                .addMove(200, {x: 0, y: 0})
-                .addScale(800, 1)
-                .play(block);
-            setTimeout(() => {
-                action.reset();
-            }, 1000);
+            fadeIn = animaster().addFadeIn(5000).play(block);
+        });
+    document.getElementById('fadeInReset')
+        .addEventListener('click', function () {
+            fadeIn?.reset?.();
         });
 
-    document.getElementById('fadeOutBlock')
-        .addEventListener('click', animaster().addFadeOut(1000).buildHandler());
+    let fadeOut;
+    document.getElementById('fadeOutPlay')
+        .addEventListener('click', function () {
+            const block = document.getElementById('fadeOutBlock');
+            fadeOut = animaster().addFadeOut(5000).play(block);
+        });
+    document.getElementById('fadeOutReset')
+        .addEventListener('click', function () {
+            fadeOut?.reset?.();
+        });
 
+    let move;
     document.getElementById('movePlay')
         .addEventListener('click', function () {
             const block = document.getElementById('moveBlock');
-            animaster().move(block, 1000, {x: 100, y: 10});
-            animaster().move(block, 1000, {x: 100, y: 10});
+            move = animaster().addMove(3000, { x: 100, y: 30 }).play(block);
+        });
+    document.getElementById('moveReset')
+        .addEventListener('click', function () {
+            move?.reset?.();
         });
 
+    let scale;
     document.getElementById('scalePlay')
         .addEventListener('click', function () {
             const block = document.getElementById('scaleBlock');
-            animaster().scale(block, 1000, 1.25);
+            scale = animaster().addScale(3000, 1.35).play(block);
+        });
+    document.getElementById('scaleReset')
+        .addEventListener('click', function () {
+            scale?.reset?.();
+        });
+    
+    let rotate;
+    document.getElementById('rotatePlay')
+        .addEventListener('click', function () {
+            const block = document.getElementById('rotateBlock');
+            rotate = animaster().addRotate(3000).play(block);
+        });
+    document.getElementById('rotateReset')
+        .addEventListener('click', function () {
+            rotate?.reset?.();
         });
 
     document.getElementById('moveAndHide')
@@ -102,7 +122,7 @@ function animaster() {
             return {
                 stop() {
                     clearTimeout(state.currentTimeout);
-                    state.history[-1].stop?.();
+                    state.history[state.history.length - 1]?.stop?.();
                 },
                 reset() {
                     clearTimeout(state.currentTimeout);
@@ -133,6 +153,10 @@ function animaster() {
 
         addScale(duration, ratio) {
             return this._addStep(duration, (element, duration) => this.scale(element, duration, ratio));
+        },
+
+        addRotate(duration) {
+            return this._addStep(duration, (element, duration) => this.rotate(element, duration));
         },
 
         /**
@@ -196,10 +220,22 @@ function animaster() {
          */
         scale(element, duration, ratio) {
             element.style.transitionDuration = `${duration}ms`;
-            element.style.transform = getTransform(null, ratio);return {
-                stop() {
+            element.style.transform = getTransform(null, ratio);
+            return {
+                reset() {
                     element.style.transitionDuration = null;
                     element.style.transform = getTransform(null, 1);
+                }
+            };
+        },
+
+        rotate(element, duration) {
+            element.style.transitionDuration = `${duration}ms`;
+            element.style.transform = "rotate(360deg)";
+            return {
+                reset() {
+                    element.style.transitionDuration = null;
+                    element.style.transform = null;
                 }
             };
         },
