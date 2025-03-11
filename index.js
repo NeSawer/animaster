@@ -56,11 +56,15 @@ function addListeners() {
             rotate?.reset?.();
         });
 
-    document.getElementById('moveAndHide')
+    document.getElementById('moveAndHidePlay')
         .addEventListener('click', function () {
             const block = document.getElementById('moveAndHideBlock');
-            animaster().moveAndHide(block, 1000);
-        });
+            const moveAndHideController = animaster().moveAndHide(block, 1000);
+
+            document.getElementById('moveAndHideReset').addEventListener('click', function () {
+                moveAndHideController.reset();
+            });
+    });
 
     document.getElementById('showAndHide')
         .addEventListener('click', function () {
@@ -68,7 +72,7 @@ function addListeners() {
             animaster().showAndHide(block, 1000);
         });
 
-    document.getElementById('heartBeating')
+    document.getElementById('heartBeatingPlay')
         .addEventListener('click', function () {
             const block = document.getElementById('heartBeatingBlock');
             const heartBeatingController = animaster().heartBeating(block);
@@ -241,8 +245,39 @@ function animaster() {
         },
 
         moveAndHide(element, duration, translation) {
-            this.move(element, duration * 0.4, {x: 100, y: 20});
-            this.fadeOut(element, duration * 0.6);
+            let isRunning = true;
+            let moveTimeoutId = null;
+            let fadeTimeoutId = null;
+
+            function startMove() {
+                if (!isRunning) return;
+                this.move(element, (2 / 5) * duration, { x: 100, y: 20 });
+
+                moveTimeoutId = setTimeout(() => {
+                    if (!isRunning) return;
+                    startFade();
+                }, (2 / 5) * duration);
+            }
+
+            function startFade() {
+                if (!isRunning) return;
+                this.fadeOut(element, (3 / 5) * duration);
+            }
+
+            startMove.call(this);
+
+            return {
+                reset: () => {
+                    isRunning = false;
+                    clearTimeout(moveTimeoutId);
+                    clearTimeout(fadeTimeoutId);
+
+                    element.style.transform = '';
+                    this.fadeIn(element, duration);
+                    element.classList.remove('hide');
+                    element.classList.add('show');
+                }
+            };
         },
 
         showAndHide(element, duration) {
