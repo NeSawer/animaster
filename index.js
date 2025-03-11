@@ -20,14 +20,8 @@ function addListeners() {
             }, 1000);
         });
 
-    document.getElementById('fadeOutPlay')
-        .addEventListener('click', function () {
-            const block = document.getElementById('fadeOutBlock');
-            const action = animaster().fadeOut(block, 10000);
-            setTimeout(() => {
-                action.reset();
-            }, 3000);
-        });
+    document.getElementById('fadeOutBlock')
+        .addEventListener('click', animaster().addFadeOut(1000).buildHandler());
 
     document.getElementById('movePlay')
         .addEventListener('click', function () {
@@ -59,6 +53,19 @@ function addListeners() {
             const block = document.getElementById('heartBeatingBlock');
             animaster().heartBeating(block);
         });
+
+    document.getElementById('complexBlock')
+        .addEventListener('click', animaster()
+            .addFadeIn(100)
+            .addMove(200, {x: 40, y: 40})
+            .addScale(800, 1.3)
+            .addMove(200, {x: 80, y: 0})
+            .addScale(800, 1)
+            .addMove(200, {x: 40, y: -40})
+            .addScale(800, 0.7)
+            .addMove(200, {x: 0, y: 0})
+            .addScale(800, 1)
+            .buildHandler());
 }
 
 function animaster() {
@@ -66,7 +73,10 @@ function animaster() {
         _steps: [],
 
         _addStep(duration, stepFunc) {
-            this._steps.push([duration, stepFunc]);
+            const next = animaster()
+            next._steps.push(...this._steps);
+            next._steps.push([duration, stepFunc]);
+            return next;
         },
 
         _playStep(element, stepId, state) {
@@ -98,24 +108,27 @@ function animaster() {
             };
         },
 
+        buildHandler() {
+            const animaster = this;
+            return function() {
+                animaster.play(this);
+            }
+        },
+
         addFadeIn(duration) {
-            this._addStep(duration, this.fadeIn);
-            return this;
+            return this._addStep(duration, this.fadeIn);
         },
 
         addFadeOut(duration) {
-            this._addStep(duration, this.fadeOut);
-            return this;
+            return this._addStep(duration, this.fadeOut);
         },
 
         addMove(duration, translation) {
-            this._addStep(duration, (element, duration) => this.move(element, duration, translation));
-            return this;
+            return this._addStep(duration, (element, duration) => this.move(element, duration, translation));
         },
 
         addScale(duration, ratio) {
-            this._addStep(duration, (element, duration) => this.scale(element, duration, ratio));
-            return this;
+            return this._addStep(duration, (element, duration) => this.scale(element, duration, ratio));
         },
 
         /**
