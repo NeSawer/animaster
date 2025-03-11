@@ -33,12 +33,31 @@ function addListeners() {
         .addEventListener('click', function () {
             const block = document.getElementById('moveBlock');
             animaster().move(block, 1000, {x: 100, y: 10});
+            animaster().move(block, 1000, {x: 100, y: 10});
         });
 
     document.getElementById('scalePlay')
         .addEventListener('click', function () {
             const block = document.getElementById('scaleBlock');
             animaster().scale(block, 1000, 1.25);
+        });
+
+    document.getElementById('moveAndHide')
+        .addEventListener('click', function () {
+            const block = document.getElementById('moveAndHideBlock');
+            animaster().moveAndHide(block, 1000);
+        });
+
+    document.getElementById('showAndHide')
+        .addEventListener('click', function () {
+            const block = document.getElementById('showAndHideBlock');
+            animaster().showAndHide(block, 1000);
+        });
+
+    document.getElementById('heartBeating')
+        .addEventListener('click', function () {
+            const block = document.getElementById('heartBeatingBlock');
+            animaster().heartBeating(block);
         });
 }
 
@@ -160,16 +179,39 @@ function animaster() {
          */
         scale(element, duration, ratio) {
             element.style.transitionDuration = `${duration}ms`;
-            element.style.transform = getTransform(null, ratio);
-            return {
+            element.style.transform = getTransform(null, ratio);return {
                 stop() {
                     element.style.transitionDuration = null;
                     element.style.transform = getTransform(null, 1);
                 }
             };
-        }
+        },
+
+        moveAndHide(element, duration, translation) {
+            this.move(element, duration * 0.4, {x: 100, y: 20});
+            this.fadeOut(element, duration * 0.6);
+        },
+
+        showAndHide(element, duration) {
+            element.classList.remove('hide');
+            this.fadeIn(element, duration / 3);
+            setTimeout(() => {
+                this.fadeOut(element, duration / 3);
+            }, duration / 3 * 2);
+        },
+
+        heartBeating(element) {
+            this.scale(element, 500, 1.4);
+
+            setTimeout(() => {
+                this.scale(element, 500, 1);
+            }, 500);
+
+            setTimeout(() => this.heartBeating(element), 500 * 2);
+        },
     }
 }
+
 
 function getTransform(translation, ratio) {
     const result = [];
